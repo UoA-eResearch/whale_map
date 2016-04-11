@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>UoA Humpback Whale Tracker</title>
+    <script src="Cesium/Cesium.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
+    <style>
+      @import url(Cesium/Widgets/widgets.css);
+      #cesiumContainer {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 100%;
+        margin: 0;
+        overflow: hidden;
+        padding: 0;
+        font-family: sans-serif;
+      }
+
+      html {
+        height: 100%;
+      }
+
+      body {
+        padding: 0;
+        margin: 0;
+        overflow: hidden;
+        height: 100%;
+      }
+    </style>
+  </head>
+<body>
+  <div id="cesiumContainer"></div>
+  <script>
+    // Utility functions
+    function get_query() {
+        var url = location.href;
+        var qs = url.substring(url.indexOf('?') + 1).split('&');
+        for (var i = 0, result = {}; i < qs.length; i++) {
+          qs[i] = qs[i].split('=');
+          result[qs[i][0]] = decodeURIComponent(qs[i][1]);
+        }
+        return result;
+    }
+    var $_GET = get_query();
+    
+    function rainbow(numOfSteps, step) {
+        // This function generates vibrant, "evenly spaced" colours (i.e. no clustering). This is ideal for creating easily distinguishable vibrant markers in Google Maps and other apps.
+        // Adam Cole, 2011-Sept-14
+        // HSV to RBG adapted from: http://mjijackson.com/2008/02/rgb-to-hsl-and-rgb-to-hsv-color-model-conversion-algorithms-in-javascript
+        var r, g, b;
+        var h = step / numOfSteps;
+        var i = ~~(h * 6);
+        var f = h * 6 - i;
+        var q = 1 - f;
+        switch(i % 6){
+            case 0: r = 1; g = f; b = 0; break;
+            case 1: r = q; g = 1; b = 0; break;
+            case 2: r = 0; g = 1; b = f; break;
+            case 3: r = 0; g = q; b = 1; break;
+            case 4: r = f; g = 0; b = 1; break;
+            case 5: r = 1; g = 0; b = q; break;
+        }
+        var c = "#" + ("00" + (~ ~(r * 255)).toString(16)).slice(-2) + ("00" + (~ ~(g * 255)).toString(16)).slice(-2) + ("00" + (~ ~(b * 255)).toString(16)).slice(-2);
+        var result = {red: r * 255, green: g * 255, blue: b * 255, css: c}
+        return (result);
+    }
+    
+    // Cesium
+    var terrainProvider = new Cesium.CesiumTerrainProvider({
+        url : '//assets.agi.com/stk-terrain/world',
+        requestWaterMask: true,
+        requestVertexNormals: true
+    });
+    var viewer = new Cesium.Viewer('cesiumContainer', {
+      terrainProvider: terrainProvider
+    });
+    viewer.scene.globe.enableLighting = true;
+    viewer.camera.setView({
+        destination : Cesium.Cartesian3.fromDegrees(
+            -150,
+            -60,
+            15000000
+        )
+    });
+    
+    var months = ["201510", "201511", "201512", "201601", "201602", "201603"];
+    geojson = {};
+    
+    $.each(months, function(i, month) {
+      var promise = Cesium.GeoJsonDataSource.load('seaice_geojson/extent_S_' + month + '_polygon.geojson', {
+        stroke: Cesium.Color.RED,
+        fill: Cesium.Color.WHITE,
+        strokeWidth: 3,
+        markerSymbol: '?'
+      })
+      promise.then(function(dataSource) {
+        //dataSource.show = false;
+        //Get the array of entities
+        var entities = dataSource.entities.values;
+        
+        for (var i = 0; i < entities.length; i++) {
+          var entity = entities[i];
+          entity.name = month + ' seaice extent';
+          entity.description = '';
+        }
+        if (month != months[0]) {
+          dataSource.show = false;
+        }
+        
+        geojson[month] = dataSource;
+        viewer.dataSources.add(dataSource);
+      });
+    })
+    
+    var previousId = months[0];
+    viewer.clock.onTick.addEventListener(function(clock) {
+      var dt = Cesium.JulianDate.toDate(clock.currentTime);
+      var id = dt.getFullYear() + ((dt.getMonth() + 1) < 10 ? '0' : '') + (dt.getMonth() + 1);
+      if (id != previousId && geojson[previousId] && geojson[id]) {
+        console.log('month change - hiding ' + previousId + ' and showing ' + id);
+        geojson[previousId].show = false;
+        geojson[id].show = true;
+        previousId = id;
+      }
+    });
+
+    
+    $.getJSON('whales.json', function(data) {
+      console.log(data);
+      var colors = {};
+      var whaleCount = Object.keys(data).length;
+      for (var i=0; i < whaleCount; i++) {
+        var id = Object.keys(data)[i];
+        colors[id] = rainbow(whaleCount, i);
+        //$('#legend').append(id + ':<div style="display:inline-block;width:10px;height:10px;background-color:' + colors[id] + '"></div> ');
+      }
+      var czml = [{
+        "id" : "document",
+        "name" : "Raoul all sat tracks Sept_2015_March_2016_evis",
+        "version" : "1.0"
+      }];
+      $.each(data, function(id, d) {
+        var c = colors[id];
+        czml.push({
+          "id" : id,
+          "name" : id + "'s GPS data",
+          "description" : "",
+          "availability" : "2015-10-01T12:00:00Z/2016-03-22T12:00:00Z",
+          "path" : {
+            "material" : {
+              "solidColor" : {
+                "color" : {
+                  "rgba" : [c.red, c.green, c.blue, 255]
+                }
+              }
+            },
+            "width" : 1,
+            "leadTime" : 0,
+            //"trailTime" : 1000,
+            "resolution" : 60*60*2,
+            "show": true
+          },
+          "billboard" : {
+            "image" : "whale3.png",
+            "scale" : .1
+          },
+          "position" : d
+        });
+      });
+      viewer.dataSources.add(Cesium.CzmlDataSource.load(czml))
+    });
+  </script>
+</body>
+</html>
