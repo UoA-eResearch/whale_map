@@ -11,6 +11,7 @@ if len(sys.argv) < 2:
 f = sys.argv[1]
 
 whales = {}
+bad_dates = {'102211': '18/11/2015 20:12', '112721': '10/11/2015 3:15', '102218': '11/10/2015 5:36', '112718': '5/10/2015 19:31', '131182': '1/10/2015 21:44', '131172': '19/10/2015 2:24'}
 
 with open(f) as csvfile:
   reader = csv.DictReader(csvfile)
@@ -18,7 +19,7 @@ with open(f) as csvfile:
   emptyrows = 0
   rows = 0
   for row in reader:
-    if row['Comment'] or row['Quality'] not in ['A', 'B', '1']:
+    if row['Comment'] or row['Quality'] not in ['A', 'B', '1'] or row['Ptt'] in bad_dates and bad_dates[row['Ptt']] == row['Date']:
       badrows += 1
       continue
     if not row['Ptt']:
