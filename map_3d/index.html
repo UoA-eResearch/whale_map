@@ -74,9 +74,17 @@
         requestVertexNormals: true
     });
     var viewer = new Cesium.Viewer('cesiumContainer', {
-      terrainProvider: terrainProvider
+      terrainProvider: terrainProvider,
+      vrButton: true
     });
-    viewer.scene.globe.enableLighting = true;
+    
+    //viewer.scene.globe.enableLighting = true;
+    
+    $('#cesiumContainer').append('<button id="toggle-day-night" type="button" class="cesium-button" style="position:absolute;top:5px;left:5px;">Toggle day/night cycle</button>');
+    $("#toggle-day-night").click(function() {
+      viewer.scene.globe.enableLighting = !viewer.scene.globe.enableLighting;
+    });
+    
     viewer.camera.setView({
         destination : Cesium.Cartesian3.fromDegrees(
             -150,
@@ -143,6 +151,27 @@
       }];
       $.each(data, function(id, d) {
         var c = colors[id];
+        /*
+        var rotations = [];
+        for (var i = 0; i < d.cartographicDegrees.length; i += 8) {
+          var s = d.cartographicDegrees[i];
+          var lng = d.cartographicDegrees[i+1];
+          var lat = d.cartographicDegrees[i+2];
+          var current = Cesium.Cartesian3.fromDegrees(lng, lat);
+          var next_lng = d.cartographicDegrees[i+5];
+          var next_lat = d.cartographicDegrees[i+6];
+          var next = Cesium.Cartesian3.fromDegrees(next_lng, next_lat);
+          //var heading = Cesium.Cartesian3.angleBetween(current, next);
+          var heading = 0;
+          if (next_lat > lat) {
+            heading = Math.PI / 2;
+          } else {
+            heading = -Math.PI / 2;
+          }
+          rotations.push(s);
+          rotations.push(heading);
+        }
+        */
         czml.push({
           "id" : id,
           "name" : id + "'s GPS data",
@@ -164,11 +193,21 @@
           },
           "billboard" : {
             "image" : "whale3.png",
-            "scale" : .1
+            "scale" : .1,
+            /*
+            "rotation": {
+              "number": rotations,
+              "epoch": d.epoch
+            },
+            "alignedAxis": {
+              "cartesian": [0, 0, 1]
+            }
+            */
           },
           "position" : d
         });
       });
+      console.log(czml);
       viewer.dataSources.add(Cesium.CzmlDataSource.load(czml))
     });
   </script>
