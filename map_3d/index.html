@@ -136,81 +136,97 @@
       }
     });
 
-    
-    $.getJSON('whales.json', function(data) {
-      console.log(data);
-      var colors = {};
-      var whaleCount = Object.keys(data).length;
-      for (var i=0; i < whaleCount; i++) {
-        var id = Object.keys(data)[i];
-        colors[id] = rainbow(whaleCount, i);
-        //$('#legend').append(id + ':<div style="display:inline-block;width:10px;height:10px;background-color:' + colors[id] + '"></div> ');
-      }
-      var czml = [{
-        "id" : "document",
-        "name" : "Raoul all sat tracks Sept_2015_March_2016_evis",
-        "version" : "1.0"
-      }];
-      $.each(data, function(id, d) {
-        var c = colors[id];
-        /*
-        var rotations = [];
-        for (var i = 0; i < d.cartographicDegrees.length; i += 8) {
-          var s = d.cartographicDegrees[i];
-          var lng = d.cartographicDegrees[i+1];
-          var lat = d.cartographicDegrees[i+2];
-          var current = Cesium.Cartesian3.fromDegrees(lng, lat);
-          var next_lng = d.cartographicDegrees[i+5];
-          var next_lat = d.cartographicDegrees[i+6];
-          var next = Cesium.Cartesian3.fromDegrees(next_lng, next_lat);
-          //var heading = Cesium.Cartesian3.angleBetween(current, next);
-          var heading = 0;
-          if (next_lat > lat) {
-            heading = Math.PI / 2;
-          } else {
-            heading = -Math.PI / 2;
-          }
-          rotations.push(s);
-          rotations.push(heading);
+    $.getJSON('whale_sex_info.json', function(sex_info) {
+      $.getJSON('whales.json', function(data) {
+        console.log(data);
+        var colors = {};
+        var whaleCount = Object.keys(data).length;
+        for (var i=0; i < whaleCount; i++) {
+            var id = Object.keys(data)[i];
+            colors[id] = rainbow(whaleCount, i);
+            //$('#legend').append(id + ':<div style="display:inline-block;width:10px;height:10px;background-color:' + colors[id] + '"></div> ');
         }
-        */
-        czml.push({
-          "id" : id,
-          "name" : id + "'s GPS data",
-          "description" : "",
-          "availability" : "2015-10-01T12:00:00Z/2016-03-22T12:00:00Z",
-          "path" : {
-            "material" : {
-              "solidColor" : {
-                "color" : {
-                  "rgba" : [c.red, c.green, c.blue, 255]
-                }
-              }
-            },
-            "width" : 1,
-            "leadTime" : 0,
-            //"trailTime" : 1000,
-            "resolution" : 60*60*2,
-            "show": true
-          },
-          "billboard" : {
-            "image" : "whale3.png",
-            "scale" : .1,
+        var czml = [{
+            "id" : "document",
+            "name" : "Raoul all sat tracks Sept_2015_March_2016_evis",
+            "version" : "1.0"
+        }];
+        $.each(data, function(id, d) {
+            var pathColor = colors[id];
             /*
-            "rotation": {
-              "number": rotations,
-              "epoch": d.epoch
-            },
-            "alignedAxis": {
-              "cartesian": [0, 0, 1]
+            var rotations = [];
+            for (var i = 0; i < d.cartographicDegrees.length; i += 8) {
+            var s = d.cartographicDegrees[i];
+            var lng = d.cartographicDegrees[i+1];
+            var lat = d.cartographicDegrees[i+2];
+            var current = Cesium.Cartesian3.fromDegrees(lng, lat);
+            var next_lng = d.cartographicDegrees[i+5];
+            var next_lat = d.cartographicDegrees[i+6];
+            var next = Cesium.Cartesian3.fromDegrees(next_lng, next_lat);
+            //var heading = Cesium.Cartesian3.angleBetween(current, next);
+            var heading = 0;
+            if (next_lat > lat) {
+                heading = Math.PI / 2;
+            } else {
+                heading = -Math.PI / 2;
+            }
+            rotations.push(s);
+            rotations.push(heading);
             }
             */
-          },
-          "position" : d
+            var sex = sex_info[id];
+            var icon = "whale3.png";
+            var markerColor = Cesium.Color.CRIMSON;
+            if (sex == 'male') {
+              markerColor = Cesium.Color.BLUE;
+            } else if (sex == 'female') {
+              markerColor = Cesium.Color.DEEPPINK;
+            } else if (sex == 'female with calf') {
+              markerColor = Cesium.Color.DEEPPINK;
+              icon = "female_with_calf.png";
+            }
+            console.log(markerColor)
+            czml.push({
+            "id" : id,
+            "name" : id + "'s GPS data.",
+            "description" : "Sex: " + sex,
+            "availability" : "2015-10-01T12:00:00Z/2016-03-22T12:00:00Z",
+            "path" : {
+                "material" : {
+                "solidColor" : {
+                    "color" : {
+                      "rgba" : [pathColor.red, pathColor.green, pathColor.blue, 255]
+                    }
+                }
+                },
+                "width" : 1,
+                "leadTime" : 0,
+                //"trailTime" : 1000,
+                "resolution" : 60*60*2,
+                "show": true
+            },
+            "billboard" : {
+                "image" : icon,
+                "scale" : .15,
+                "color" : {
+                  "rgba"  : [markerColor.red * 255, markerColor.green * 255, markerColor.blue * 255, 255]
+                }
+                /*
+                "rotation": {
+                "number": rotations,
+                "epoch": d.epoch
+                },
+                "alignedAxis": {
+                "cartesian": [0, 0, 1]
+                }
+                */
+            },
+            "position" : d
+            });
         });
+        console.log(czml);
+        viewer.dataSources.add(Cesium.CzmlDataSource.load(czml))
       });
-      console.log(czml);
-      viewer.dataSources.add(Cesium.CzmlDataSource.load(czml))
     });
   </script>
 </body>
