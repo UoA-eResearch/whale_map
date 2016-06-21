@@ -100,8 +100,8 @@
     
     $.each(months, function(i, month) {
       var promise = Cesium.GeoJsonDataSource.load('seaice_geojson/extent_S_' + month + '_polygon.geojson', {
-        stroke: Cesium.Color.RED,
-        fill: Cesium.Color.WHITE,
+        stroke: Cesium.Color.TRANSPARENT,
+        fill: new Cesium.Color(1, 1, 1, .5),
         strokeWidth: 3,
         markerSymbol: '?'
       })
@@ -176,7 +176,7 @@
             */
             var sex = sex_info[id];
             var icon = "whale3.png";
-            var markerColor = Cesium.Color.CRIMSON;
+            var markerColor = Cesium.Color.GREEN;
             if (sex == 'male') {
               markerColor = Cesium.Color.BLUE;
             } else if (sex == 'female') {
