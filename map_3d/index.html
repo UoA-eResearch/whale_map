@@ -75,6 +75,9 @@
         requestWaterMask: true,
         requestVertexNormals: true
     });
+    var rectangle = Cesium.Rectangle.fromDegrees(-150, -60, -150, -60);
+    Cesium.Camera.DEFAULT_VIEW_FACTOR = 2;
+    Cesium.Camera.DEFAULT_VIEW_RECTANGLE = rectangle;
     var viewer = new Cesium.Viewer('cesiumContainer', {
       terrainProvider: terrainProvider,
       vrButton: true
