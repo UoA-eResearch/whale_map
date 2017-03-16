@@ -85,7 +85,9 @@
       terrainProvider: terrainProvider,
       vrButton: true
     });
-    
+
+    $('.cesium-viewer-animationContainer').attr('title', 'Timelapse (x real time)');
+
     //viewer.scene.globe.enableLighting = true;
     
     $('#cesiumContainer').append('<button id="toggle-day-night" type="button" class="cesium-button" style="position:absolute;top:5px;left:5px;">Toggle day/night cycle</button>');
