@@ -17,7 +17,33 @@
         padding: 0;
         font-family: sans-serif;
       }
+	  .legend {
+			line-height: 16px;
+			width: 280px;
+			position: absolute;
+			z-index: 1000;
+			left: 10px;
+			top: 60px;
+			color: #a0a0a0;
+			padding: 6px 8px;
+			background: #000000;
+			background: rgba(38, 38, 38, 0);
+			box-shadow: 0 0 15px rgba(0,0,0,0.2);
+			border-radius: 5px;
+		}
+		
+		.legend img {
+			height: 18px;
+			float: left;
+			margin-right: 8px;
+		}
 
+		.legend p {
+			font-size: 12px;
+			line-height: 22px;
+			margin: 0;
+		}
+	  
       html {
         height: 100%;
       }
@@ -35,6 +61,14 @@
   </head>
 <body>
   <div id="cesiumContainer"></div>
+  <div class="legend">
+	<h4> Migration of Humpback Whales </h4>
+	<p><b> Gender </b></p><br/>
+	<img src="whale_male.png"></img> <p> Male </p>
+	<img src="whale_female.png"></img> <p> Female </p>
+	<img src="female_calf.png"></img> <p> Female with calf </p>
+	<img src="whale_unknown.png"></img> <p> Unknown </p><br/>
+	</div>
   <script>
     // Utility functions
     function get_query() {
@@ -94,7 +128,8 @@
     $("#toggle-day-night").click(function() {
       viewer.scene.globe.enableLighting = !viewer.scene.globe.enableLighting;
     });
-    
+	
+
     viewer.camera.setView({
         destination : Cesium.Cartesian3.fromDegrees(
             -150,
@@ -102,6 +137,7 @@
             15000000
         )
     });
+	
     
     var months = ["201510", "201511", "201512", "201601", "201602", "201603"];
     geojson = {};
