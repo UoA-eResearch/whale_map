@@ -89,6 +89,20 @@
     </div>
 
   <script>
+    Cesium.AnimationViewModel.defaultTimeFormatter = function(date, viewModel) {
+        var gregorianDate = Cesium.JulianDate.toGregorianDate(date);
+        var millisecond = Math.round(gregorianDate.millisecond);
+        if (Math.abs(viewModel._clockViewModel.multiplier) < 1) {
+            return Cesium.sprintf("%02d:%02d:%02d.%03d", gregorianDate.hour, gregorianDate.minute, gregorianDate.second, millisecond);
+        } else if (Math.abs(viewModel._clockViewModel.multiplier) < 100) {
+            return Cesium.sprintf("%02d:%02d:%02d UTC", gregorianDate.hour, gregorianDate.minute, gregorianDate.second);
+        } else if (Math.abs(viewModel._clockViewModel.multiplier) < 100000) {
+            return Cesium.sprintf("%02d:%02d UTC", gregorianDate.hour, gregorianDate.minute);
+        } else {
+            return "";
+        }
+    };
+
     // Utility functions
     function get_query() {
         var url = location.href;
