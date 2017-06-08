@@ -72,7 +72,7 @@
         border-color: #ea4;
       }
       #cesiumContainer > div > div.cesium-viewer-animationContainer > svg > g > g:nth-child(3) > g.cesium-animation-buttonDisabled {
-        display: none
+        display: none;
       }
       #cesiumContainer > div > div.cesium-viewer-toolbar > button.cesium-button.cesium-toolbar-button.toggle-day-night{
         background-image: url('sun.png');
@@ -108,6 +108,7 @@
             return "";
         }
     };
+    
 
     // Utility functions
     function get_query() {
@@ -163,10 +164,11 @@
 
     
     var element = document.createElement('button');
-        element.type = 'button';
-        element.className = 'cesium-button cesium-toolbar-button toggle-day-night';
-        $('.cesium-viewer-toolbar').append(element);
+    element.type = 'button';
+    element.className = 'cesium-button cesium-toolbar-button toggle-day-night';
+    $('.cesium-viewer-toolbar').append(element);
     
+    $("#cesiumContainer > div > div.cesium-viewer-toolbar > button.cesium-button.cesium-toolbar-button.toggle-day-night").attr('title', 'Toggle Day/Night Cycle');
     $("#cesiumContainer > div > div.cesium-viewer-toolbar > button.cesium-button.cesium-toolbar-button.toggle-day-night").click(function() {
       viewer.scene.globe.enableLighting = !viewer.scene.globe.enableLighting;
     });
@@ -222,6 +224,10 @@
         previousId = id;
       }
     });
+    
+    
+    viewer.timeline.updateFromClock();
+    viewer.timeline.zoomTo(viewer.clock.startTime, viewer.clock.stopTime);
 
     $.getJSON('whale_sex_info.json', function(sex_info) {
       $.getJSON('whales.json', function(data) {
