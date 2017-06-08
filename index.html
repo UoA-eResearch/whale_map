@@ -24,7 +24,7 @@
 			position: absolute;
 			z-index: 1000;
 			left: 10px;
-			top: 60px;
+			top: 10px;
 			color: #a0a0a0;
 			padding: 6px 8px;
 			background: #000000;
@@ -74,6 +74,12 @@
       #cesiumContainer > div > div.cesium-viewer-animationContainer > svg > g > g:nth-child(3) > g.cesium-animation-buttonDisabled {
         display: none
       }
+      #cesiumContainer > div > div.cesium-viewer-toolbar > button.cesium-button.cesium-toolbar-button.toggle-day-night{
+        background-image: url('sun.png');
+        background-repeat: no-repeat;
+        background-size: contain;
+      }
+      
     </style>
   </head>
 <body>
@@ -156,13 +162,16 @@
     $('.cesium-viewer-animationContainer').attr('title', 'Timelapse (x real time)');
 
     
-    //viewer.scene.globe.enableLighting = true;
+    var element = document.createElement('button');
+        element.type = 'button';
+        element.className = 'cesium-button cesium-toolbar-button toggle-day-night';
+        $('.cesium-viewer-toolbar').append(element);
     
-    $('#cesiumContainer').append('<button id="toggle-day-night" type="button" class="cesium-button" style="position:absolute;top:5px;left:5px;">Toggle day/night cycle</button>');
-    $("#toggle-day-night").click(function() {
+    $("#cesiumContainer > div > div.cesium-viewer-toolbar > button.cesium-button.cesium-toolbar-button.toggle-day-night").click(function() {
       viewer.scene.globe.enableLighting = !viewer.scene.globe.enableLighting;
     });
-
+    
+    
     viewer.camera.setView({
         destination : Cesium.Cartesian3.fromDegrees(
             -150,
