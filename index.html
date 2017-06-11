@@ -162,6 +162,12 @@
 
     $('.cesium-viewer-animationContainer').attr('title', 'Timelapse (x real time)');
 
+    var timelineMonthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    viewer.timeline.makeLabel = function(time) {
+        var gregorian = Cesium.JulianDate.toGregorianDate(time);
+        console.log("TIMELINE FUNCTION");
+        return timelineMonthNames[gregorian.month -1] + ' ' + gregorian.day + ' ' + gregorian.year;
+    };
     
     var element = document.createElement('button');
     element.type = 'button';
@@ -224,10 +230,12 @@
         previousId = id;
       }
     });
-    
+
     
     viewer.timeline.updateFromClock();
     viewer.timeline.zoomTo(viewer.clock.startTime, viewer.clock.stopTime);
+    
+
 
     $.getJSON('whale_sex_info.json', function(sex_info) {
       $.getJSON('whales.json', function(data) {
