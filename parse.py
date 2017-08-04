@@ -14,6 +14,9 @@ f = sys.argv[1]
 
 whales = {}
 
+minDate = None
+maxDate = None
+
 with open(f) as csvfile:
   reader = csv.DictReader(csvfile)
   reader.fieldnames = [name.lower() for name in reader.fieldnames]
@@ -26,6 +29,13 @@ with open(f) as csvfile:
     if 'date_time' not in row:
       row['date_time'] = "{} {}".format(row['date'], row['time'])
     dt = parse(row['date_time'], dayfirst=True)
+    if not minDate:
+      minDate = dt
+      maxDate = dt
+    if dt < minDate:
+      minDate = dt
+    if dt > maxDate:
+      maxDate = dt
     lat = float(row['latitude'])
     lng = float(row['longitude'])
     if row['ptt'] not in whales:
@@ -37,7 +47,7 @@ with open(f) as csvfile:
       diff = int(diff.total_seconds())
       whales[row['ptt']]['cartographicDegrees'].extend([diff, lng, lat, 0])
     rows += 1
-  print 'emptyrows:{}, rows:{}'.format(emptyrows, rows)
+  print 'emptyrows:{}, rows:{}. Data ranges from {}-{}'.format(emptyrows, rows, minDate, maxDate)
 
-with open(f + '.json', 'w') as outfile:
+with open('whales.json', 'w') as outfile:
   json.dump(whales, outfile)
