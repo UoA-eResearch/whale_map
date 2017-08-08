@@ -332,56 +332,38 @@
             15000000
         )
     });
-	
 
-    // Add sea ice to the globe
-    var months = ["201510", "201511", "201512", "201601", "201602", "201603"];
-    geojson = {};
-    
-    $.each(months, function(i, month) {
-      var promise = Cesium.GeoJsonDataSource.load('seaice_geojson/extent_S_' + month + '_polygon.geojson', {
-        stroke: Cesium.Color.TRANSPARENT,
-        fill: new Cesium.Color(1, 1, 1, .5),
-        strokeWidth: 3,
-        markerSymbol: '?'
-      })
-      promise.then(function(dataSource) {
-        //dataSource.show = false;
-        //Get the array of entities
-        var entities = dataSource.entities.values;
-        
-        for (var i = 0; i < entities.length; i++) {
-          var entity = entities[i];
-          entity.name = month + ' seaice extent';
-          entity.description = '';
-        }
-        if (month != months[0]) {
-          dataSource.show = false;
-        }
-        
-        geojson[month] = dataSource;
-        viewer.dataSources.add(dataSource);
-      });
-    })
-    
-    var previousId = months[0];
-    viewer.clock.onTick.addEventListener(function(clock) {
-      var dt = Cesium.JulianDate.toDate(clock.currentTime);
-      var id = dt.getFullYear() + ((dt.getMonth() + 1) < 10 ? '0' : '') + (dt.getMonth() + 1);
-      if (id != previousId && geojson[previousId] && geojson[id]) {
-        console.log('month change - hiding ' + previousId + ' and showing ' + id);
-        geojson[previousId].show = false;
-        geojson[id].show = true;
-        previousId = id;
-      }
-    });
-
-    
     viewer.timeline.updateFromClock();
     viewer.timeline.zoomTo(viewer.clock.startTime, viewer.clock.stopTime);
+    viewer.extend(Cesium.viewerDragDropMixin, { clearOnDrop : false });
     
-
-
+    var czml = [{
+      "id" : "document",
+      "name" : "Humpback whales + ice",
+      "version" : "1.0"
+    }]
+    
+    $.getJSON('seaice.json', function(seaice) {
+      $.each(seaice, function(id, d) {
+        czml.push({
+          "id" : "seaice" + id,
+          "name": "Sea ice for " + d['interval'],
+          "availability":d['interval'],
+          "polygon": {
+            "positions": d,
+            "material": {
+                "solidColor": {
+                    "color": {
+                      "rgba": [255, 255, 255, 125]
+                    }
+                }
+            }
+          }
+        });
+      });
+      viewer.dataSources.add(Cesium.CzmlDataSource.load(czml))
+    });
+    
     $.getJSON('whale_sex_info.json', function(sex_info) {
       $.getJSON('whales.json', function(data) {
         console.log(data);
@@ -392,11 +374,6 @@
             colors[id] = rainbow(whaleCount, i);
             //$('#legend').append(id + ':<div style="display:inline-block;width:10px;height:10px;background-color:' + colors[id] + '"></div> ');
         }
-        var czml = [{
-            "id" : "document",
-            "name" : "HW_tracks_hssm1E",
-            "version" : "1.0"
-        }];
         $.each(data, function(id, d) {
             var pathColor = colors[id];
             /*
