@@ -31,12 +31,27 @@ for filename in files:
     data = np.fromfile(f, dtype=np.uint8)
   data = np.reshape(data, shape)
   data = np.where(data < 251, data, 0) # Filter to just ice
-  contours, hierarchy = cv2.findContours(data, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+  contours, hierarchy = cv2.findContours(data, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)
 
   start = datetime.date(int(header[131:135]), int(header[135:137]), int(header[137:139]))
   end = start + datetime.timedelta(days=1)
   startS = start.isoformat() + 'T00:00:00Z'
   endS = end.isoformat() + 'T00:00:00Z'
+
+#  mask = np.zeros(data.shape[:2], np.uint8)
+
+  for i,h in enumerate(hierarchy[0]):
+    if h[3] != -1 and len(contours[i]) > 10:
+      contours[h[3]] = np.vstack((contours[h[3]], contours[i]))
+      contours[i] = np.array([])
+
+#  for i,h in enumerate(hierarchy[0]):
+#    if h[2] != -1:
+#      cv2.drawContours(mask, contours, i, 255, -1)
+
+#  fig = plt.figure()
+#  plt.imshow(mask, cmap='gray')
+#  plt.show()
 
   for c in contours:
     if len(c) > 10:
