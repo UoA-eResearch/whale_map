@@ -46,17 +46,27 @@
 		}
 		
 		.logo {
-			position:absolute;
+			position: absolute;
 			top: 0.5em;
 			right: 0.5em;
-			height: auto;
-			width: 12em;
+			height: 4em;
+			width: 20em;
+			background: #000000;
+			background: rgba(38, 38, 38, 0.75);
+			box-shadow: 0 0 15px rgba(0,0,0,0.2);
+			border-radius: 5px;
+			color: #a0a0a0;
+			padding: 0.5em;
         }
         .logo img {
-			width: inherit;
+			width: auto;
 			height: inherit;
+			margin-right: 15px;
+			float: left;
         }
-	  
+		.logo h2 {
+			margin-top: 0.2em;
+        }
         .rewind {
             position: absolute;
             left: 10px;
@@ -150,7 +160,7 @@
         visibility: hidden;
       }
       #cesiumContainer > div > div.cesium-viewer-toolbar{
-        top: 8em;
+        top: 9em;
 		right: 0.5em
         width: 310px;
         background: rgba(38, 38, 38, 0.75);
@@ -158,7 +168,7 @@
       }
       #cesiumContainer > div > button.cesium-button.menu{
         position:absolute;
-        top: 6.5em;
+        top: 7em;
         right: 0.5em;
         height: 35px;
         width: 35px;
@@ -185,7 +195,8 @@
     </div>
 	
 	<div class="logo">
-    <img src="UoALogo.png"></img>
+	<img src="UoALogo.png"></img>
+	<h2> Center for eResearch </h2>
     </div>
     
     <div class="rewind">
